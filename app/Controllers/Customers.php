@@ -6,34 +6,69 @@ class Customers extends BaseController
 {
     public function index()
     {
-        $customers = [
-            [
-                'full_name' => 'Thor Odinson',
-                'email' => 'thor@gmail.com',
-                'phone' => '09171234567'
-            ],
-            [
-                'full_name' => 'Tony Stark',
-                'email' => 'tony@gmail.com',
-                'phone' => '09181234567'
-            ],
-            [
-                'full_name' => 'Natasha Romanoff',
-                'email' => 'natasha@gmail.com',
-                'phone' => '09191234567'
-            ],
-            [
-                'full_name' => 'Wanda Maximoff',
-                'email' => 'wanda@gmail.com',
-                'phone' => '09201234567'
-            ],
-            [
-                'full_name' => 'Stephen Strange',
-                'email' => 'stephen@gmail.com',
-                'phone' => '09211234567'
-            ]
-        ];
+        $customerModel = new \App\Models\CustomerModel();
+
+        $customers = $customerModel->findAll();
 
         return view('customers', ['customers' => $customers]);
     }
+
+    public function newCustomer()
+    {
+        return view('customer_new');
+    }
+
+    public function create()
+    {
+        $customerModel = new \App\Models\CustomerModel();
+
+        if (!$this->validate([
+            'full_name' => 'required',
+            'email' => 'required|valid_email'
+        ])) {
+            return redirect()->back()->withInput();
+        }
+
+        $data = [
+            'full_name' => $this->request->getPost('full_name'),
+            'email' => $this->request->getPost('email'),
+            'phone' => $this->request->getPost('phone')
+        ];
+
+        $customerModel->insert($data);
+
+        return redirect()->to(base_url('customers'));
+    }
+
+    public function edit($id)
+    {
+        $customerModel = new \App\Models\CustomerModel();
+
+        $customer = $customerModel->find($id);
+
+        return view('customer_edit', ['customer' => $customer]);
+    }
+
+    public function update($id)
+{
+    $customerModel = new \App\Models\CustomerModel();
+
+    if (!$this->validate([
+        'full_name' => 'required',
+        'email' => 'required|valid_email'
+    ])) {
+        return redirect()->back()->withInput();
+    }
+
+    $data = [
+        'full_name' => $this->request->getPost('full_name'),
+        'email' => $this->request->getPost('email'),
+        'phone' => $this->request->getPost('phone')
+    ];
+
+    $customerModel->update($id, $data);
+
+    return redirect()->to(base_url('customers'));
+}
+
 }
